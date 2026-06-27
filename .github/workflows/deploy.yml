@@ -21,8 +21,19 @@ jobs:
 
           docker network create labo05-network 2>/dev/null || true
 
+          if [ -d "$DEPLOY_DIR" ]; then
+            cd "$DEPLOY_DIR"
+            docker-compose down --remove-orphans || true
+          fi
+
+          rm -rf "$DEPLOY_DIR"
           mkdir -p "$DEPLOY_DIR"
-          cp -a "$GITHUB_WORKSPACE/." "$DEPLOY_DIR/"
+
+          rsync -a --delete \
+            --exclude='.git' \
+            --exclude='__pycache__' \
+            --exclude='.pytest_cache' \
+            "$GITHUB_WORKSPACE/" "$DEPLOY_DIR/"
 
           cd "$DEPLOY_DIR"
 
@@ -34,5 +45,4 @@ jobs:
           DB_PASSWORD=labo05
           EOF
 
-          docker-compose down --remove-orphans || true
           docker-compose up -d --build
