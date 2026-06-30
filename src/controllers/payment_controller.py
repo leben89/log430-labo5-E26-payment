@@ -66,3 +66,20 @@ def update_order(order_id, is_paid):
     )
     response.raise_for_status()
     return response.json()
+
+def update_order(order_id, is_paid):
+    """ Update order """
+    response_from_store_manager = requests.put(
+        'http://api-gateway:8080/store-manager-api/orders',
+        json={
+            'order_id': order_id,
+            'is_paid': is_paid,
+        },
+        headers={'Content-Type': 'application/json'}
+    )
+
+    if response_from_store_manager.ok:
+        data = response_from_store_manager.json() 
+        logger.info(data)
+    else:
+        logger.error("Erreur:", response_from_store_manager.status_code, response_from_store_manager.text)
